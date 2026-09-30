@@ -6,7 +6,9 @@
 <title>وساطة محمد - دفع TON</title>
 </head>
 <body>
-<h2>💎 إيداع TON</h2>
+<h2>💎 وساطة محمد</h2>
+
+<div class="deal"><div>🟢 الصفقة رقم <strong id="deal-id">--</strong></div><div class="amount"><span id="amount">--</span> TON</div></div>
 <p>اربط محفظتك لإكمال عملية الدفع.</p>
 
 <div id="ton-connect"></div>
@@ -23,10 +25,13 @@ manifestUrl: 'https://hasantaeser5-sudo.github.io/ton-pay/tonconnect-manifest.js
 
 const payButton = document.getElementById('pay-button');
 const params = new URLSearchParams(window.location.search);
+const dealId = params.get('deal');
 const amountTon = parseFloat(params.get('amount'));
 
-if (!Number.isFinite(amountTon) || amountTon <= 0) {
-  document.getElementById('status').textContent = '❌ مبلغ الصفقة غير صالح';
+if (!dealId || !Number.isFinite(amountTon) || amountTon <= 0) {
+  document.getElementById('status').textContent = '❌ رابط الدفع غير صالح';
+document.getElementById('deal-id').textContent = dealId || '--';
+document.getElementById('amount').textContent = Number.isFinite(amountTon) ? amountTon : '--';
   throw new Error('Invalid amount');
 }
 
