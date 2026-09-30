@@ -1,10 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>بوت وساطة محمد</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وساطة محمد - دفع TON</title>
 </head>
 <body>
-  <h1>بوت وساطة محمد</h1>
+<h2>💎 إيداع TON</h2>
+<p>اربط محفظتك لإكمال عملية الدفع.</p>
+
+<div id="ton-connect"></div>
+<br>
+
+<button id="pay-button" disabled>💎 دفع TON</button>
+<p id="status">⚠️ اربط محفظتك أولاً</p>
+
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script>
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+manifestUrl: 'https://hasantaeser5-sudo.github.io/ton-pay/tonconnect-manifest.json',
+});
+
+const payButton = document.getElementById('pay-button');
+const params = new URLSearchParams(window.location.search);
+const amountTon = parseFloat(params.get('amount'));
+
+if (!Number.isFinite(amountTon) || amountTon <= 0) {
+  document.getElementById('status').textContent = '❌ مبلغ الصفقة غير صالح';
+  throw new Error('Invalid amount');
+}
+
+payButton.textContent = `💎 دفع ${amountTon} TON`;
+const status = document.getElementById('status');
+
+tonConnectUI.onStatusChange(wallet => {
+  payButton.disabled = !wallet;
+  status.textContent = wallet
+    ? '✅ تم ربط المحفظة'
+    : '⚠️ اربط محفظتك أولاً';
+});
+
+payButton.addEventListener('click', async () => {
+  try {
+    status.textContent = '⏳ جاري تجهيز معاملة الدفع...';
+
+    await tonConnectUI.sendTransaction({
+      validUntil: Math.floor(Date.now() / 1000) + 600,
+      messages: [{
+        address: 'UQALRnE5W7Aa34fmeY4CeOT3dGFeGy1PR_pXHdLkmADWlHT2S',
+        amount: String(Math.round(amountTon * 1000000000))
+      }]
+    });
+
+    status.textContent = '✅ تم إرسال طلب الدفع إلى المحفظة.';
+  } catch (error) {
+    console.error(error);
+    status.textContent = '❌ تم إلغاء العملية أو حدث خطأ.';
+  }
+});
+</script>
 </body>
 </html>
